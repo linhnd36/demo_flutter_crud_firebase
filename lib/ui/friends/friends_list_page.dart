@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_demo_curd_firebase/ui/friends/add_friend_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/frienddetails/friend_details_page.dart';
@@ -72,6 +73,13 @@ class _FriendsListPageState extends State<FriendsListPage> {
     return new Scaffold(
       appBar: new AppBar(title: new Text('Friends')),
       body: content,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddFriendPage(),));
+        },
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

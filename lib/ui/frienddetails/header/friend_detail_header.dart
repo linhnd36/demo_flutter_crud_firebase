@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 
 class FriendDetailHeader extends StatelessWidget {
   static const BACKGROUND_IMAGE = 'images/profile_header_background.png';
-
   FriendDetailHeader(
     this.friend, {
     @required this.avatarTag,
@@ -33,7 +32,7 @@ class FriendDetailHeader extends StatelessWidget {
       tag: avatarTag,
       child: new CircleAvatar(
         backgroundImage: new NetworkImage(friend.avatar),
-        radius: 50.0,
+        radius: 100.0,
       ),
     );
   }
@@ -47,42 +46,15 @@ class FriendDetailHeader extends StatelessWidget {
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new Text('90 Following', style: followerStyle),
           new Text(
-            ' | ',
-            style: followerStyle.copyWith(
-                fontSize: 24.0, fontWeight: FontWeight.normal),
-          ),
-          new Text('100 Followers', style: followerStyle),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(ThemeData theme) {
-    return new Padding(
-      padding: const EdgeInsets.only(
-        top: 16.0,
-        left: 16.0,
-        right: 16.0,
-      ),
-      child: new Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          _createPillButton(
-            'HIRE ME',
-            backgroundColor: theme.accentColor,
-          ),
-          new DecoratedBox(
-            decoration: new BoxDecoration(
-              border: new Border.all(color: Colors.white30),
-              borderRadius: new BorderRadius.circular(30.0),
+            friend.email,
+            style: TextStyle(
+              color: Colors.black,
+              decoration: TextDecoration.underline,
+              decorationStyle: TextDecorationStyle.wavy,
+              fontSize: 18
             ),
-            child: _createPillButton(
-              'FOLLOW',
-              textColor: Colors.white70,
-            ),
-          ),
+          )
         ],
       ),
     );
@@ -120,7 +92,6 @@ class FriendDetailHeader extends StatelessWidget {
             children: <Widget>[
               _buildAvatar(),
               _buildFollowerInfo(textTheme),
-              _buildActionButtons(theme),
             ],
           ),
         ),

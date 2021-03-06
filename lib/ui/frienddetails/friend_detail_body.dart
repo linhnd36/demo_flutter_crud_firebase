@@ -11,22 +11,36 @@ class FriendDetailBody extends StatefulWidget {
 
 class _FriendDetailBodyState extends State<FriendDetailBody> {
   bool flag = false;
-  String name;
+  String name, location;
   TextEditingController nameController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   Widget _buildLocationInfo(TextTheme textTheme) {
+    location = widget.friend.location;
     return new Row(
       children: <Widget>[
+        flag
+            ? Expanded(
+                child: TextFormField(
+                cursorColor: Theme.of(context).cursorColor,
+                maxLength: 100,
+                controller: locationController,
+                decoration: InputDecoration(
+                  labelText: 'Location',
+                  labelStyle: TextStyle(color: Colors.white),
+                  hintText: "Input location here",
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF6200EE)),
+                  ),
+                ),
+              ))
+            : new Text(
+                location,
+                style: textTheme.subhead.copyWith(color: Colors.white),
+              ),
         new Icon(
           Icons.place,
           color: Colors.white,
           size: 16.0,
-        ),
-        new Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: new Text(
-            widget.friend.location,
-            style: textTheme.subhead.copyWith(color: Colors.white),
-          ),
         ),
       ],
     );
@@ -61,10 +75,9 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
                 ? Expanded(
                     child: TextFormField(
                     cursorColor: Theme.of(context).cursorColor,
-                    maxLength: 20,
+                    maxLength: 50,
                     controller: nameController,
                     decoration: InputDecoration(
-                      icon: Icon(Icons.favorite),
                       labelText: 'Nick Name',
                       labelStyle: TextStyle(color: Colors.white),
                       hintText: "Input nick name here",
@@ -85,8 +98,14 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
               onPressed: () {
                 setState(() {
                   flag = !flag;
-                  name = nameController.text;
+                  if (nameController.text.trim() != null && locationController.text.trim() != null) {
+                    if(nameController.text.trim().isNotEmpty && locationController.text.trim().isNotEmpty) {
+                      name = nameController.text.trim();
+                      location = locationController.text.trim();
+                    }
+                  }
                 });
+                print("name:" + name + " - location:" + location);
               },
             ),
           ],

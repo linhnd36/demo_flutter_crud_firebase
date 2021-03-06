@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
+
+import '../friends/friend.dart';
 
 class FriendDetailBody extends StatefulWidget {
   FriendDetailBody(this.friend);
@@ -7,6 +11,21 @@ class FriendDetailBody extends StatefulWidget {
 
   @override
   _FriendDetailBodyState createState() => _FriendDetailBodyState();
+}
+
+Future<void> updateFriend(Friend friend) async {
+  await Firebase.initializeApp();
+  CollectionReference friendDb = FirebaseFirestore.instance.collection('friends');
+  return friendDb
+      .doc(friend.email)
+      .set({
+    'name': friend.name,
+    'avatar': friend.avatar,
+    'location': friend.location,
+    'email':friend.email
+  })
+      .then((value) => print("User Added"))
+      .catchError((error) => print("Failed to add user: $error"));
 }
 
 class _FriendDetailBodyState extends State<FriendDetailBody> {
@@ -85,7 +104,9 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
               onPressed: () {
                 setState(() {
                   flag = !flag;
-                  name = nameController.text;
+                  widget.friend.name = nameController.text;
+                  updateFriend(widget.friend);
+                  // TODO
                 });
               },
             ),

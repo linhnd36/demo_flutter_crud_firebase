@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
 
-class FriendDetailBody extends StatelessWidget {
+class FriendDetailBody extends StatefulWidget {
   FriendDetailBody(this.friend);
   final Friend friend;
 
+  @override
+  _FriendDetailBodyState createState() => _FriendDetailBodyState();
+}
+
+class _FriendDetailBodyState extends State<FriendDetailBody> {
+  bool flag = false;
+  String name;
+  TextEditingController nameController = TextEditingController();
   Widget _buildLocationInfo(TextTheme textTheme) {
     return new Row(
       children: <Widget>[
@@ -16,7 +24,7 @@ class FriendDetailBody extends StatelessWidget {
         new Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: new Text(
-            friend.location,
+            widget.friend.location,
             style: textTheme.subhead.copyWith(color: Colors.white),
           ),
         ),
@@ -43,13 +51,45 @@ class FriendDetailBody extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     var textTheme = theme.textTheme;
-
+    name = widget.friend.name;
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new Text(
-          friend.name,
-          style: textTheme.headline.copyWith(color: Colors.white),
+        new Row(
+          children: [
+            flag
+                ? Expanded(
+                    child: TextFormField(
+                    cursorColor: Theme.of(context).cursorColor,
+                    maxLength: 20,
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.favorite),
+                      labelText: 'Nick Name',
+                      labelStyle: TextStyle(color: Colors.white),
+                      hintText: "Input nick name here",
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF6200EE)),
+                      ),
+                    ),
+                  ))
+                : Text(
+                    name,
+                    style: textTheme.headline.copyWith(color: Colors.white),
+                  ),
+            SizedBox(
+              width: 5,
+            ),
+            IconButton(
+              icon: flag ? Icon(Icons.check_circle) : Icon(Icons.edit),
+              onPressed: () {
+                setState(() {
+                  flag = !flag;
+                  name = nameController.text;
+                });
+              },
+            ),
+          ],
         ),
         new Padding(
           padding: const EdgeInsets.only(top: 4.0),
@@ -59,8 +99,8 @@ class FriendDetailBody extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16.0),
           child: new Text(
             'Lorem Ipsum is simply dummy text of the printing and typesetting '
-                'industry. Lorem Ipsum has been the industry\'s standard dummy '
-                'text ever since the 1500s.',
+            'industry. Lorem Ipsum has been the industry\'s standard dummy '
+            'text ever since the 1500s.',
             style:
                 textTheme.body1.copyWith(color: Colors.white70, fontSize: 16.0),
           ),

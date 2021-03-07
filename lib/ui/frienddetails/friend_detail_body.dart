@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../friends/friend.dart';
 
@@ -51,6 +52,7 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
                     borderSide: BorderSide(color: Color(0xFF6200EE)),
                   ),
                 ),
+                  style: TextStyle(color: Colors.white),
               ))
             : new Text(
                 location,
@@ -104,6 +106,7 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
                         borderSide: BorderSide(color: Color(0xFF6200EE)),
                       ),
                     ),
+                      style: TextStyle(color: Colors.white),
                   ))
                 : Text(
                     name,
@@ -123,6 +126,15 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
                       location = locationController.text.trim();
                       widget.friend.name = name;
                       widget.friend.location = location;
+                      Fluttertoast.showToast(
+                          msg: "Update Friends Successfull !",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
                     }
                   }
                 });

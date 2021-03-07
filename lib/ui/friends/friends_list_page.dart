@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'friend.dart';
 
 import 'friend.dart';
+import 'friend.dart';
 
 class FriendsListPage extends StatefulWidget {
   @override
@@ -37,6 +38,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
             });
     })
     });
+    print(_friends);
   }
 
   Widget _buildFriendListTile(BuildContext context, int index) {
@@ -66,13 +68,13 @@ class _FriendsListPageState extends State<FriendsListPage> {
   }
   void findName(String placeName) async
   {
-    _friends = friends;
     List<Friend> friendList = [];
-     for (int i = 0; i < _friends.length; i++){
-      if (_friends[i].name.contains(placeName)){
-        friendList.add(_friends[i]);
+     for (int i = 0; i < friends.length; i++){
+      if (friends[i].name.contains(placeName)){
+        friendList.add(friends[i]);
       }
     }
+     print(friendList);
      setState(() {
        _friends = friendList;
      });
@@ -88,9 +90,41 @@ class _FriendsListPageState extends State<FriendsListPage> {
         child: new CircularProgressIndicator(),
       );
     } else {
-      content = new ListView.builder(
-          itemCount: _friends.length,
-          itemBuilder: _buildFriendListTile,
+      // content = new ListView.builder(
+      //     itemCount: _friends.length,
+      //     itemBuilder: _buildFriendListTile,
+      // );
+      content = StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection("friends").snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot){
+          if(querySnapshot.hasError){
+            return Text("Error");
+          }
+          if(querySnapshot.connectionState == ConnectionState.waiting){
+            return CircularProgressIndicator();
+          }else{
+
+            final list = querySnapshot.data.docs;
+
+            return ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (context,index){
+                Friend currenFriend = new Friend(list[index]["avatar"], list[index]["name"], list[index]["email"], list[index]["location"]);
+                return ListTile(
+                  onTap: () => _navigateToFriendDetails(currenFriend, index),
+                  leading: new Hero(
+                    tag: index,
+                    child: new CircleAvatar(
+                      backgroundImage: new NetworkImage(list[index]["avatar"]),
+                    ),
+                  ),
+                  title: new Text(list[index]["name"]),
+                  subtitle: new Text(list[index]["email"]),
+                );
+              },
+            );
+          }
+        },
       );
     }
     return new Scaffold(
@@ -113,13 +147,21 @@ class _FriendsListPageState extends State<FriendsListPage> {
                     else{
                       this.cusIcon = Icon(Icons.search);
                       this.cusSearchBar = Text("Friends");
+                      _loadFriends();
                     }
                   });
                 }
             )
           ],
       ),
-      body: content
+      body: content,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddFriendPage(),));
+        },
+        backgroundColor: Theme.of(context).primaryColor,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

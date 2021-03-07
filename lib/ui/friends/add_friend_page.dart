@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:flutter_demo_curd_firebase/ui/dialog/progressDialog.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AddFriendPage extends StatefulWidget {
   @override
@@ -29,15 +30,52 @@ Future<void> addFriend(String name,String avatar, String location,String email) 
       .catchError((error) => print("Failed to add user: $error"));
 }
 
-Future<void> uploadFile(String filePath) async {
+Future<String> uploadFile(String filePath) async {
   File file = File(filePath);
-  String basename = file.path.split('/').last;
+  String fileName = DateTime.now().toString();
+  String urlFileImage;
   try {
-    await firebase_storage.FirebaseStorage.instance
-        .ref('uploads/${basename}')
+    UploadTask task = FirebaseStorage.instance
+        .ref("uploads/" + fileName)
         .putFile(file);
+
+    task.snapshotEvents.listen((TaskSnapshot snapshot) {
+      print('Task state: ${snapshot.state}');
+      print(
+          'Progress: ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100} %');
+    }, onError: (e) {
+      print(task.snapshot);
+
+      if (e.code == 'permission-denied') {
+        print('User does not have permission to upload to this reference.');
+      }
+    });
+
+    // We can still optionally use the Future alongside the stream.
+    try {
+      await task;
+      print('Upload complete.');
+      Fluttertoast.showToast(
+          msg: "Add New Friends Successfull !",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
+      urlFileImage = await FirebaseStorage.instance
+          .ref("uploads/" + fileName)
+          .getDownloadURL();
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        print('User does not have permission to upload to this reference.');
+      }
+      // ...
+    }
   }catch (e) {
   }
+  return urlFileImage;
 }
 
 class _AddFriendPageState extends State<AddFriendPage> {
@@ -211,18 +249,14 @@ class _AddFriendPageState extends State<AddFriendPage> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
-      onPressed: () {
-        uploadFile(_image.path);
-        addFriend(name,avatar,location,email);
-        Fluttertoast.showToast(
-            msg: "Add New Friends Successfull !",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0
+      onPressed: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => ProgressDialog(messages: "Upload Image, wait....",),
         );
+        String urlImage = await uploadFile(_image.path);
+        Navigator.of(context).pop();
+        addFriend(name,urlImage,location,email);
         Navigator.of(context).pop();
       },
     );

@@ -1,9 +1,11 @@
 import 'dart:async';
-
-import 'package:http/http.dart' as http;
+import 'package:flutter_demo_curd_firebase/ui/friends/add_friend_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/frienddetails/friend_details_page.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'friend.dart';
 
 import 'friend.dart';
 
@@ -23,12 +25,17 @@ class _FriendsListPageState extends State<FriendsListPage> {
   }
 
   Future<void> _loadFriends() async {
-    http.Response response =
-        await http.get('https://randomuser.me/api/?results=25');
-
-    setState(() {
-      _friends = Friend.allFromResponse(response.body);
-      friends = _friends;
+    await Firebase.initializeApp();
+    FirebaseFirestore.instance
+        .collection('friends')
+        .get()
+        .then((QuerySnapshot querySnapshot) => {
+          querySnapshot.docs.forEach((doc) {
+            setState(() {
+              Friend friend = new Friend(doc["avatar"], doc["name"], doc["email"], doc["location"]);
+              _friends.add(friend);
+            });
+    })
     });
   }
 

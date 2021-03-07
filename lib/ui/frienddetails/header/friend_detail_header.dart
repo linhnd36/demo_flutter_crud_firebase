@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/frienddetails/header/diagonally_cut_colored_image.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:meta/meta.dart';
 
 class FriendDetailHeader extends StatelessWidget {
@@ -28,12 +29,30 @@ class FriendDetailHeader extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    return new Hero(
-      tag: avatarTag,
-      child: new CircleAvatar(
-        backgroundImage: new NetworkImage(friend.avatar),
-        radius: 100.0,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Align(
+          alignment: Alignment.center,
+          child: CircleAvatar(
+            radius: 100,
+            backgroundColor: Colors.white,
+            child: ClipOval(
+              child: new SizedBox(
+                width: 180.0,
+                height: 180.0,
+                child: (friend.avatar!=null) ? Hero(tag: avatarTag, child: new CircleAvatar(
+                  backgroundImage: new NetworkImage(friend.avatar),
+                  radius: 100.0,
+                )):Image.network(
+                  "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -49,10 +68,9 @@ class FriendDetailHeader extends StatelessWidget {
           new Text(
             friend.email,
             style: TextStyle(
-              color: Colors.black,
-              decoration: TextDecoration.underline,
+              color: Colors.white,
               decorationStyle: TextDecorationStyle.wavy,
-              fontSize: 18
+              fontSize: 25
             ),
           )
         ],

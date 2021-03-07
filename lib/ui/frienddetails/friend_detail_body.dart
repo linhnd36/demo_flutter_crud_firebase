@@ -113,7 +113,7 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
               width: 5,
             ),
             IconButton(
-              icon: flag ? Icon(Icons.check_circle) : Icon(Icons.edit),
+              icon: flag ? Icon(Icons.check_circle, color: Colors.white,) : Icon(Icons.edit,color: Colors.white,),
               onPressed: () {
                 setState(() {
                   flag = !flag;
@@ -121,10 +121,12 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
                     if(nameController.text.trim().isNotEmpty && locationController.text.trim().isNotEmpty) {
                       name = nameController.text.trim();
                       location = locationController.text.trim();
+                      widget.friend.name = name;
+                      widget.friend.location = location;
                     }
                   }
                 });
-                print("name:" + name + " - location:" + location);
+                updateFriend(widget.friend);
               },
             ),
           ],
@@ -132,26 +134,6 @@ class _FriendDetailBodyState extends State<FriendDetailBody> {
         new Padding(
           padding: const EdgeInsets.only(top: 4.0),
           child: _buildLocationInfo(textTheme),
-        ),
-        new Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: new Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting '
-            'industry. Lorem Ipsum has been the industry\'s standard dummy '
-            'text ever since the 1500s.',
-            style:
-                textTheme.body1.copyWith(color: Colors.white70, fontSize: 16.0),
-          ),
-        ),
-        new Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: new Row(
-            children: <Widget>[
-              _createCircleBadge(Icons.beach_access, theme.accentColor),
-              _createCircleBadge(Icons.cloud, Colors.white12),
-              _createCircleBadge(Icons.shop, Colors.white12),
-            ],
-          ),
         ),
       ],
     );

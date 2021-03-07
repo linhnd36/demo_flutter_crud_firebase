@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/add_friend_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo_curd_firebase/ui/frienddetails/friend_details_page.dart';
 import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'friend.dart';
 
 import 'friend.dart';
@@ -27,17 +29,27 @@ class _FriendsListPageState extends State<FriendsListPage> {
 
   Future<void> _loadFriends() async {
     await Firebase.initializeApp();
+    _friends.clear();
     FirebaseFirestore.instance
         .collection('friends')
         .get()
         .then((QuerySnapshot querySnapshot) => {
-          querySnapshot.docs.forEach((doc) {
-            setState(() {
-              Friend friend = new Friend(doc["avatar"], doc["name"], doc["email"], doc["location"]);
-              _friends.add(friend);
+              querySnapshot.docs.forEach((doc) {
+                setState(() {
+                  Friend friend = new Friend(doc["avatar"], doc["name"],
+                      doc["email"], doc["location"]);
+                  _friends.add(friend);
+                });
+              })
             });
-    })
-    });
+  }
+
+  Future<void> _deleteFriend(String email) async {
+    await Firebase.initializeApp();
+    FirebaseFirestore.instance
+        .collection('friends').doc(email).delete()
+        .then((value) => print("User Deleted"))
+        .catchError((error) => print("Failed to delete user: $error"));
   }
 
   void _navigateToFriendDetails(Friend friend, Object avatarTag) {
@@ -125,23 +137,61 @@ class _FriendsListPageState extends State<FriendsListPage> {
           )
           : StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection("friends").snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot){
-          if(querySnapshot.hasError){
+        builder:
+            (BuildContext context, AsyncSnapshot<QuerySnapshot> querySnapshot) {
+          if (querySnapshot.hasError) {
             return Text("Error");
           }
-          if(querySnapshot.connectionState == ConnectionState.waiting){
+          if (querySnapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
-          }else{
-
+          } else {
             final list = querySnapshot.data.docs;
             _friends.clear();
             return ListView.builder(
               itemCount: list.length,
-              itemBuilder: (context,index){
-                Friend currenFriend = new Friend(list[index]["avatar"], list[index]["name"], list[index]["email"], list[index]["location"]);
+              itemBuilder: (context, index) {
+                Friend currenFriend = new Friend(
+                    list[index]["avatar"],
+                    list[index]["name"],
+                    list[index]["email"],
+                    list[index]["location"]);
                 _friends.add(currenFriend);
                 return ListTile(
                   onTap: () => _navigateToFriendDetails(currenFriend, index),
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => new CupertinoAlertDialog(
+                        title: new Text("Delete"),
+                        content: new Text("Do you want to delete it?"),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('No'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text('Yes'),
+                            onPressed: () {
+                              _deleteFriend(list[index]["email"]);
+                              Fluttertoast.showToast(
+                                  msg: "Delete Friends Successfull !",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.green,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0
+                              );
+                              _loadFriends();
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      )
+                    );
+                  },
                   leading: new Hero(
                     tag: index,
                     child: new CircleAvatar(

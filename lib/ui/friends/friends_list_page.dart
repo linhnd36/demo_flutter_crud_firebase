@@ -7,6 +7,8 @@ import 'package:flutter_demo_curd_firebase/ui/friends/friend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'friend.dart';
 
+import 'friend.dart';
+
 class FriendsListPage extends StatefulWidget {
   @override
   _FriendsListPageState createState() => new _FriendsListPageState();
@@ -14,6 +16,7 @@ class FriendsListPage extends StatefulWidget {
 
 class _FriendsListPageState extends State<FriendsListPage> {
   List<Friend> _friends = [];
+  List<Friend> friends = [];
 
   @override
   void initState() {
@@ -40,15 +43,15 @@ class _FriendsListPageState extends State<FriendsListPage> {
     var friend = _friends[index];
 
     return new ListTile(
-      onTap: () => _navigateToFriendDetails(friend, index),
-      leading: new Hero(
-        tag: index,
-        child: new CircleAvatar(
-          backgroundImage: new NetworkImage(friend.avatar),
+        onTap: () => _navigateToFriendDetails(friend, index),
+        leading: new Hero(
+          tag: index,
+          child: new CircleAvatar(
+            backgroundImage: new NetworkImage(friend.avatar),
+          ),
         ),
-      ),
-      title: new Text(friend.name),
-      subtitle: new Text(friend.email),
+        title: new Text(friend.name),
+        subtitle: new Text(friend.email),
     );
   }
 
@@ -61,32 +64,62 @@ class _FriendsListPageState extends State<FriendsListPage> {
       ),
     );
   }
-
+  void findName(String placeName) async
+  {
+    _friends = friends;
+    List<Friend> friendList = [];
+     for (int i = 0; i < _friends.length; i++){
+      if (_friends[i].name.contains(placeName)){
+        friendList.add(_friends[i]);
+      }
+    }
+     setState(() {
+       _friends = friendList;
+     });
+  }
+  TextEditingController searchEditingController = TextEditingController();
+  Icon cusIcon = Icon(Icons.search);
+  Widget cusSearchBar = Text("Friends");
   @override
   Widget build(BuildContext context) {
     Widget content;
-
     if (_friends.isEmpty) {
       content = new Center(
         child: new CircularProgressIndicator(),
       );
     } else {
       content = new ListView.builder(
-        itemCount: _friends.length,
-        itemBuilder: _buildFriendListTile,
+          itemCount: _friends.length,
+          itemBuilder: _buildFriendListTile,
       );
     }
-
     return new Scaffold(
-      appBar: new AppBar(title: new Text('List Friends')),
-      body: content,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AddFriendPage(),));
-        },
-        backgroundColor: Theme.of(context).primaryColor,
-        child: Icon(Icons.add),
+      appBar: new AppBar(
+        title: cusSearchBar,
+          actions: <Widget>[
+            IconButton(
+                icon: cusIcon,
+                onPressed: (){
+                  setState(() {
+                    if(this.cusIcon.icon == Icons.search){
+                      this.cusIcon = Icon(Icons.cancel);
+                      this.cusSearchBar = TextField(
+                          onChanged: (val){
+                            findName(val);
+                          },
+                          controller: searchEditingController
+                      );
+                    }
+                    else{
+                      this.cusIcon = Icon(Icons.search);
+                      this.cusSearchBar = Text("Friends");
+                    }
+                  });
+                }
+            )
+          ],
       ),
+      body: content
     );
   }
 }
